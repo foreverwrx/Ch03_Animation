@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Head Attention Animation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            overflow: auto;
+        }
+        .container {
+            text-align: center;
+            width: 90%;
+            max-width: 1000px;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .sentence {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .word {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            font-size: 16px;
+            animation: fadeIn 0.5s ease-in forwards;
+        }
+        .step {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .step h2 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .vectors, .heads, .context-vectors {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .vector, .head, .context {
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #333;
+            animation: fadeIn 0.5s ease-in forwards;
+        }
+        .vector.query { background-color: #2196F3; }
+        .vector.key { background-color: #4CAF50; }
+        .vector.value { background-color: #AB47BC; }
+        .head {
+            background-color: #FFCC80;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            padding: 15px;
+        }
+        .head-matrix {
+            display: grid;
+            grid-template-columns: repeat(6, 40px);
+            gap: 2px;
+            background-color: #e0e0e0;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        .matrix-cell {
+            width: 40px;
+            height: 40px;
+            background-color: #81C784;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #333;
+            border-radius: 3px;
+            animation: fadeIn 0.5s ease-in forwards;
+        }
+        .context { background-color: #64B5F6; }
+        .arrow {
+            width: 30px;
+            height: 2px;
+            background-color: #333;
+            position: relative;
+            margin: 10px;
+        }
+        .arrow::after {
+            content: '';
+            position: absolute;
+            right: -10px;
+            top: -5px;
+            border: 5px solid transparent;
+            border-left-color: #333;
+        }
+        .caption {
+            font-size: 14px;
+            color: #555;
+            margin-top: 10px;
+            max-width: 600px;
+            text-align: center;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Staggered animations for words */
+        .word:nth-child(1) { animation-delay: 0s; }
+        .word:nth-child(2) { animation-delay: 0.2s; }
+        .word:nth-child(3) { animation-delay: 0.4s; }
+        .word:nth-child(4) { animation-delay: 0.6s; }
+        .word:nth-child(5) { animation-delay: 0.8s; }
+        .word:nth-child(6) { animation-delay: 1s; }
+        /* Staggered animations for vectors */
+        .vector:nth-child(1) { animation-delay: 1.2s; }
+        .vector:nth-child(2) { animation-delay: 1.4s; }
+        .vector:nth-child(3) { animation-delay: 1.6s; }
+        /* Staggered animations for heads and matrices */
+        .head:nth-child(1) { animation-delay: 1.8s; }
+        .head:nth-child(2) { animation-delay: 2.0s; }
+        .head-matrix .matrix-cell:nth-child(-n+6) { animation-delay: 2.2s; }
+        .head-matrix .matrix-cell:nth-child(n+7):nth-child(-n+12) { animation-delay: 2.4s; }
+        .head-matrix .matrix-cell:nth-child(n+13):nth-child(-n+18) { animation-delay: 2.6s; }
+        .head-matrix .matrix-cell:nth-child(n+19):nth-child(-n+24) { animation-delay: 2.8s; }
+        .head-matrix .matrix-cell:nth-child(n+25):nth-child(-n+30) { animation-delay: 3.0s; }
+        .head-matrix .matrix-cell:nth-child(n+31):nth-child(-n+36) { animation-delay: 3.2s; }
+        /* Staggered animations for context vectors */
+        .context:nth-child(1) { animation-delay: 3.4s; }
+        .context:nth-child(2) { animation-delay: 3.6s; }
+        .context:nth-child(3) { animation-delay: 3.8s; }
+        .context:nth-child(4) { animation-delay: 4.0s; }
+        .context:nth-child(5) { animation-delay: 4.2s; }
+        .context:nth-child(6) { animation-delay: 4.4s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Multi-Head Attention Mechanism</h1>
+        <div class="sentence">
+            <div class="word">Your</div>
+            <div class="word">journey</div>
+            <div class="word">starts</div>
+            <div class="word">with</div>
+            <div class="word">one</div>
+            <div class="word">step</div>
+        </div>
+
+        <div class="step">
+            <h2>Step 1: Generate Query, Key, and Value Vectors</h2>
+            <div class="vectors">
+                <div class="vector query">Queries: [[0.32, 0.45], ..., [0.30, 0.43]]</div>
+                <div class="vector key">Keys: [[0.31, 0.44], ..., [0.29, 0.42]]</div>
+                <div class="vector value">Values: [[0.55, 0.87], ..., [0.50, 0.80]]</div>
+            </div>
+            <div class="caption">
+                Project input vectors using trainable weight matrices (W_query, W_key, W_value) to get query, key, and value vectors.
+            </div>
+        </div>
+
+        <div class="step">
+            <h2>Step 2: Split into Two Heads and Compute Attention</h2>
+            <div class="heads">
+                <div class="head">
+                    <div>Head 1</div>
+                    <div class="head-matrix">
+                        <div class="matrix-cell">0.15</div><div class="matrix-cell">0.00</div><div class="matrix-cell">0.00</div><div class="matrix-cell">0.00</div><div class="matrix-cell">0.00</div><div class="matrix-cell">0.00</div>
+                        <div class="matrix-cell">0.38</div><div class="matrix-cell">0.62</div><div class="matrix-cell">0.00</div><div class="matrix-cell">0.00</div><div class="matrix-cell">0.00</div><div class="matrix-cell">0.00</div>
+                        <div class="matrix-cell">0.23</div><div class="matrix-cell">0.37</div><div class="matrix-cell">0.40</div><div class="matrix-cell">0.00</div><div class="matrix-cell">0.00</div><div class="matrix-cell">0.00</div>
+                        <div class="matrix-cell">0.21</div><div class="matrix-cell">0.25</div><div class="matrix-cell">0.23</div><div class="matrix-cell">0.31</div><div class="matrix-cell">0.00</div><div class="matrix-cell">0.00</div>
+                        <div class="matrix-cell">0.19</div><div class="matrix-cell">0.22</div><div class="matrix-cell">0.20</div><div class="matrix-cell">0.23</div><div class="matrix-cell">0.26</div><div class="matrix-cell">0.00</div>
+                        <div class="matrix-cell">0.15</div><div class="matrix-cell">0.19</div><div class="matrix-cell">0.17</div><div class="matrix-cell">0.18</div><div class="matrix-cell">0.16</div><div class="matrix-cell">0.25</div>
+                    </div>
+                </div>
+                <div class="head">
+                    <div>Head 2</div>
+                    <div class="head-matrix">
+                        <div class="matrix-cell">1.00</div><div class="matrix-cell">0.00</div><div class="matrix-cell">0.00</div><div class="matrix-cell">0.00</div><div class="matrix-cell">0.00</div><div class="matrix-cell">0.00</div>
+                        <div class="matrix-cell">0.42</div><div class="matrix-cell">0.58</div><div class="matrix-cell">0.00</div><div class="matrix-cell">0.00</div><div class="matrix-cell">0.00</div><div class="matrix-cell">0.00</div>
+                        <div class="matrix-cell">0.24</div><div class="matrix-cell">0.36</div><div class="matrix-cell">0.40</div><div class="matrix-cell">0.00</div><div class="matrix-cell">0.00</div><div class="matrix-cell">0.00</div>
+                        <div class="matrix-cell">0.20</div><div class="matrix-cell">0.24</div><div class="matrix-cell">0.24</div><div class="matrix-cell">0.32</div><div class="matrix-cell">0.00</div><div class="matrix-cell">0.00</div>
+                        <div class="matrix-cell">0.18</div><div class="matrix-cell">0.21</div><div class="matrix-cell">0.20</div><div class="matrix-cell">0.22</div><div class="matrix-cell">0.29</div><div class="matrix-cell">0.00</div>
+                        <div class="matrix-cell">0.16</div><div class="matrix-cell">0.18</div><div class="matrix-cell">0.17</div><div class="matrix-cell">0.19</div><div class="matrix-cell">0.15</div><div class="matrix-cell">0.25</div>
+                    </div>
+                </div>
+            </div>
+            <div class="caption">
+                Split queries, keys, and values into two heads, compute causal attention weights for each head (queries @ keys.transpose).
+            </div>
+        </div>
+
+        <div class="step">
+            <h2>Step 3: Concatenate and Project Context Vectors</h2>
+            <div class="context-vectors">
+                <div class="context">z¹: [0.43, 0.65]</div>
+                <div class="context">z²: [0.44, 0.66]</div>
+                <div class="context">z³: [0.43, 0.64]</div>
+                <div class="context">z⁴: [0.42, 0.63]</div>
+                <div class="context">z⁵: [0.41, 0.62]</div>
+                <div class="context">z⁶: [0.44, 0.65]</div>
+            </div>
+            <div class="caption">
+                Concatenate attention outputs from all heads and apply a projection layer (out_proj) to get final context vectors.
+            </div>
+        </div>
+    </div>
+</body>
+</html>
