@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Self-Attention Mechanism Animation</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f5f5f5; /* Lighter background */
+        }
+        canvas {
+            border: 2px solid #4a90e2; /* Blue border */
+            margin: 20px;
+        }
+        button {
+            margin: 5px;
+            padding: 12px 24px;
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #description {
+            max-width: 600px;
+            text-align: left;
+            margin: 20px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div id="description">
+        <h2>Self-Attention Mechanism Animation</h2>
+        <p>This animation demonstrates the self-attention mechanism:
+        <ul>
+            <li><strong>Step 1</strong>: Project input vectors to query, key, and value vectors.</li>
+            <li><strong>Step 2</strong>: Compute attention scores via dot product of queries and keys.</li>
+            <li><strong>Step 3</strong>: Normalize scores to attention weights using softmax.</li>
+            <li><strong>Step 4</strong>: Compute context vectors using attention weights and values.</li>
+        </ul>
+        Use the buttons to play, pause, or reset the animation.
+        </p>
+    </div>
+    <div>
+        <button onclick="playAnimation()">Play</button>
+        <button onclick="pauseAnimation()">Pause</button>
+        <button onclick="resetAnimation()">Reset</button>
+    </div>
+    <script>
+        let stage = 0; // Current animation stage
+        let t = 0; // Animation time
+        let isPlaying = false;
+
+        // Input data (3 tokens, 3D vectors)
+        const inputs = [
+            [0.43, 0.15, 0.89],
+            [0.55, 0.87, 0.66],
+            [0.57, 0.85, 0.64]
+        ];
+
+        // Weight matrices (simplified for 2D output)
+        const W_query = [
+            [0.54, 0.12],
+            [0.95, 0.83],
+            [0.34, 0.76]
+        ];
+        const W_key = [
+            [0.23, 0.45],
+            [0.67, 0.29],
+            [0.88, 0.14]
+        ];
+        const W_value = [
+            [0.11, 0.65],
+            [0.78, 0.32],
+            [0.49, 0.87]
+        ];
+
+        // Precomputed results for display
+        const queries = matrixMultiply(inputs, W_query);
+        const keys = matrixMultiply(inputs, W_key);
+        const values = matrixMultiply(inputs, W_value);
+        const attnScores = matrixMultiply(queries, transpose(keys));
+        const attnWeights = softmax(attnScores);
+        const contextVecs = matrixMultiply(attnWeights, values);
+
+        function setup() {
+            createCanvas(800, 600);
+            textAlign(CENTER, CENTER);
+            textSize(14);
+        }
+
+        function draw() {
+            background(255);
+            if (!isPlaying) return;
+
+            t += 0.01; // Slower animation speed for better visibility
+            if (t > 1) {
+                t = 0;
+                stage = (stage + 1) % 5;
+            }
+
+            // Draw input matrix
+            drawMatrix(inputs, 50, 50, "Inputs (x)", 0, true);
+
+            if (stage >= 1) {
+                // Draw query, key, value matrices
+                drawMatrix(queries, 250, 50, "Queries (q)", stage === 1 ? t : 1, true);
+                drawMatrix(keys, 350, 50, "Keys (k)", stage === 1 ? t : 1, true);
+                drawMatrix(values, 450, 50, "Values (v)", stage === 1 ? t : 1, true);
+
+                // Draw arrows for projection
+                if (stage === 1) {
+                    drawArrow(200, 100, 250, 100, t);
+                    drawArrow(200, 120, 350, 120, t);
+                    drawArrow(200, 140, 450, 140, t);
+                }
+            }
+
+            if (stage >= 2) {
+                // Draw attention scores
+                drawMatrix(attnScores, 550, 50, "Attention Scores (ω)", stage === 2 ? t : 1, true);
+
+                // Draw arrow for dot product
+                if (stage === 2) {
+                    drawArrow(400, 100, 550, 100, t);
+                }
+            }
+
+            if (stage >= 3) {
+                // Draw attention weights
+                drawMatrix(attnWeights, 550, 200, "Attention Weights", stage === 3 ? t : 1, true);
+
+                // Draw arrow for softmax
+                if (stage === 3) {
+                    drawArrow(600, 150, 600, 200, t);
+                }
+            }
+
+            if (stage >= 4) {
+                // Draw context vectors
+                drawMatrix(contextVecs, 550, 350, "Context Vectors (z)", stage === 4 ? t : 1, true);
+
+                // Draw arrow for weighted sum
+                if (stage === 4) {
+                    drawArrow(600, 300, 600, 350, t);
+                }
+            }
+        }
+
+        // Matrix multiplication
+        function matrixMultiply(A, B) {
+            const rowsA = A.length;
+            const colsA = A[0].length;
+            const colsB = B[0].length;
+            const result = Array(rowsA).fill().map(() => Array(colsB).fill(0));
+            for (let i = 0; i < rowsA; i++) {
+                for (let j = 0; j < colsB; j++) {
+                    for (let k = 0; k < colsA; k++) {
+                        result[i][j] += A[i][k] * B[k][j];
+                    }
+                    result[i][j] = Number(result[i][j].toFixed(4));
+                }
+            }
+            return result;
+        }
+
+        // Transpose matrix
+        function transpose(matrix) {
+            return matrix[0].map((_, colIndex) => matrix.map(row => row[colIndex]));
+        }
+
+        // Softmax function
+        function softmax(matrix) {
+            return matrix.map(row => {
+                const exp = row.map(x => Math.exp(x));
+                const sum = exp.reduce((a, b) => a + b, 0);
+                return exp.map(x => Number((x / sum).toFixed(4)));
+            });
+        }
+
+        // Draw matrix with fade-in effect
+        function drawMatrix(matrix, x, y, title, alpha, showValues) {
+            push();
+            translate(x, y);
+            fill(0, alpha * 255);
+            text(title, 50, -20);
+            const cellSize = 40;
+            for (let i = 0; i < matrix.length; i++) {
+                for (let j = 0; j < matrix[0].length; j++) {
+                    fill(200, alpha * 255);
+                    rect(j * cellSize, i * cellSize, cellSize, cellSize);
+                    if (showValues && alpha > 0.5) {
+                        fill(0, alpha * 255);
+                        text(matrix[i][j].toFixed(2), j * cellSize + cellSize / 2, i * cellSize + cellSize / 2);
+                    }
+                }
+            }
+            pop();
+        }
+
+        // Draw animated arrow
+        function drawArrow(x1, y1, x2, y2, t) {
+            push();
+            stroke(0, t * 255);
+            strokeWeight(2);
+            const len = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+            const endX = x1 + (x2 - x1) * t;
+            const endY = y1 + (y2 - y1) * t;
+            line(x1, y1, endX, endY);
+            if (t > 0.8) {
+                const headSize = 10;
+                const angle = Math.atan2(y2 - y1, x2 - x1);
+                push();
+                translate(endX, endY);
+                rotate(angle);
+                triangle(-headSize, -headSize / 2, -headSize, headSize / 2, 0, 0);
+                pop();
+            }
+            pop();
+        }
+
+        // Control functions
+        function playAnimation() {
+            isPlaying = true;
+        }
+
+        function pauseAnimation() {
+            isPlaying = false;
+        }
+
+        function resetAnimation() {
+            stage = 0;
+            t = 0;
+            isPlaying = false;
+        }
+    </script>
+</body>
+</html>
