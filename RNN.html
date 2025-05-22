@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RNN Information Bottleneck Animation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            overflow: hidden;
+        }
+        .container {
+            text-align: center;
+            width: 80%;
+            max-width: 800px;
+        }
+        h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .sentence {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .word {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            font-size: 16px;
+            animation: fadeIn 0.5s ease-in forwards;
+        }
+        .rnn-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .rnn-unit {
+            width: 60px;
+            height: 60px;
+            background-color: #2196F3;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 14px;
+            position: relative;
+            animation: pulse 2s infinite;
+        }
+        .arrow {
+            width: 30px;
+            height: 2px;
+            background-color: #333;
+            position: relative;
+        }
+        .arrow::after {
+            content: '';
+            position: absolute;
+            right: -10px;
+            top: -5px;
+            border: 5px solid transparent;
+            border-left-color: #333;
+        }
+        .bottleneck {
+            width: 30px;
+            height: 60px;
+            background: linear-gradient(to right, #2196F3, #B0BEC5);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #333;
+            animation: bottleneckFade 3s infinite;
+        }
+        .output {
+            font-size: 16px;
+            color: #666;
+            margin-top: 20px;
+        }
+        .caption {
+            font-size: 14px;
+            color: #555;
+            margin-top: 10px;
+            max-width: 600px;
+            text-align: center;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        @keyframes bottleneckFade {
+            0% { background: linear-gradient(to right, #2196F3, #B0BEC5); }
+            50% { background: linear-gradient(to right, #B0BEC5, #CFD8DC); }
+            100% { background: linear-gradient(to right, #2196F3, #B0BEC5); }
+        }
+        /* Staggered animation for words */
+        .word:nth-child(1) { animation-delay: 0s; }
+        .word:nth-child(2) { animation-delay: 0.2s; }
+        .word:nth-child(3) { animation-delay: 0.4s; }
+        .word:nth-child(4) { animation-delay: 0.6s; }
+        .word:nth-child(5) { animation-delay: 0.8s; }
+        .word:nth-child(6) { animation-delay: 1s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>RNN Information Bottleneck</h1>
+        <div class="sentence">
+            <div class="word">Your</div>
+            <div class="word">journey</div>
+            <div class="word">starts</div>
+            <div class="word">with</div>
+            <div class="word">one</div>
+            <div class="word">step</div>
+        </div>
+        <div class="rnn-flow">
+            <div class="rnn-unit">RNN t=1</div>
+            <div class="arrow"></div>
+            <div class="rnn-unit">RNN t=2</div>
+            <div class="arrow"></div>
+            <div class="rnn-unit">RNN t=3</div>
+            <div class="arrow"></div>
+            <div class="rnn-unit">RNN t=4</div>
+            <div class="arrow"></div>
+            <div class="rnn-unit">RNN t=5</div>
+            <div class="arrow"></div>
+            <div class="rnn-unit">RNN t=6</div>
+            <div class="arrow"></div>
+            <div class="bottleneck">Bottleneck</div>
+        </div>
+        <div class="output">Output: Compressed Hidden State</div>
+        <div class="caption">
+            RNNs compress input sequences into a fixed-size hidden state, causing information loss for long sequences (the "information bottleneck").
+        </div>
+    </div>
+</body>
+</html>

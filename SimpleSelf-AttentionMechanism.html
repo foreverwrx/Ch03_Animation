@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Self-Attention Animation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            overflow: auto;
+        }
+        .container {
+            text-align: center;
+            width: 90%;
+            max-width: 1000px;
+        }
+        h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .sentence {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .word {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            font-size: 16px;
+            animation: fadeIn 0.5s ease-in forwards;
+        }
+        .word.query {
+            background-color: #2196F3;
+            border: 2px solid #FF5722;
+            animation: pulse 1.5s infinite;
+        }
+        .step {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .step h2 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .attention-scores, .attention-weights, .context-vector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .score, .weight, .vector {
+            padding: 10px;
+            background-color: #E0F7FA;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #333;
+            animation: fadeIn 0.5s ease-in forwards;
+        }
+        .score {
+            background-color: #FFCC80;
+        }
+        .weight {
+            background-color: #81C784;
+        }
+        .vector {
+            background-color: #64B5F6;
+        }
+        .arrow {
+            width: 30px;
+            height: 2px;
+            background-color: #333;
+            position: relative;
+            margin: 0 10px;
+        }
+        .arrow::after {
+            content: '';
+            position: absolute;
+            right: -10px;
+            top: -5px;
+            border: 5px solid transparent;
+            border-left-color: #333;
+        }
+        .caption {
+            font-size: 14px;
+            color: #555;
+            margin-top: 10px;
+            max-width: 600px;
+            text-align: center;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        /* Staggered animations for words and steps */
+        .word:nth-child(1) { animation-delay: 0s; }
+        .word:nth-child(2) { animation-delay: 0.2s; }
+        .word:nth-child(3) { animation-delay: 0.4s; }
+        .word:nth-child(4) { animation-delay: 0.6s; }
+        .word:nth-child(5) { animation-delay: 0.8s; }
+        .word:nth-child(6) { animation-delay: 1s; }
+        .score:nth-child(1), .weight:nth-child(1), .vector:nth-child(1) { animation-delay: 1.2s; }
+        .score:nth-child(2), .weight:nth-child(2), .vector:nth-child(2) { animation-delay: 1.4s; }
+        .score:nth-child(3), .weight:nth-child(3), .vector:nth-child(3) { animation-delay: 1.6s; }
+        .score:nth-child(4), .weight:nth-child(4), .vector:nth-child(4) { animation-delay: 1.8s; }
+        .score:nth-child(5), .weight:nth-child(5), .vector:nth-child(5) { animation-delay: 2.0s; }
+        .score:nth-child(6), .weight:nth-child(6), .vector:nth-child(6) { animation-delay: 2.2s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Simple Self-Attention Mechanism</h1>
+        <div class="sentence">
+            <div class="word">Your</div>
+            <div class="word query">journey</div>
+            <div class="word">starts</div>
+            <div class="word">with</div>
+            <div class="word">one</div>
+            <div class="word">step</div>
+        </div>
+
+        <div class="step">
+            <h2>Step 1: Compute Unnormalized Attention Scores (ω)</h2>
+            <div class="attention-scores">
+                <div class="score">0.9544</div>
+                <div class="score">1.4950</div>
+                <div class="score">1.4754</div>
+                <div class="score">0.8434</div>
+                <div class="score">0.7070</div>
+                <div class="score">1.0865</div>
+            </div>
+            <div class="caption">
+                Compute dot products between the query ("journey") and each input token to get attention scores.
+            </div>
+        </div>
+
+        <div class="step">
+            <h2>Step 2: Normalize Attention Scores (Softmax)</h2>
+            <div class="attention-weights">
+                <div class="weight">0.1385</div>
+                <div class="weight">0.2379</div>
+                <div class="weight">0.2333</div>
+                <div class="weight">0.1240</div>
+                <div class="weight">0.1082</div>
+                <div class="weight">0.1581</div>
+            </div>
+            <div class="arrow"></div>
+            <div class="caption">
+                Apply softmax to normalize attention scores into weights that sum to 1.
+            </div>
+        </div>
+
+        <div class="step">
+            <h2>Step 3: Compute Context Vector (z²)</h2>
+            <div class="context-vector">
+                <div class="vector">[0.4419, 0.6515, 0.5683]</div>
+            </div>
+            <div class="caption">
+                Multiply attention weights with input vectors and sum to get the context vector for "journey".
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trainable Self-Attention Animation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            overflow: auto;
+        }
+        .container {
+            text-align: center;
+            width: 90%;
+            max-width: 1000px;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .sentence {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .word {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            font-size: 16px;
+            animation: fadeIn 0.5s ease-in forwards;
+        }
+        .word.query {
+            background-color: #2196F3;
+            border: 2px solid #FF5722;
+            animation: pulse 1.5s infinite;
+        }
+        .step {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .step h2 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .vectors, .scores, .weights, .context-vector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .vector, .score, .weight, .context {
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #333;
+            animation: fadeIn 0.5s ease-in forwards;
+        }
+        .vector.query { background-color: #2196F3; }
+        .vector.key { background-color: #4CAF50; }
+        .vector.value { background-color: #AB47BC; }
+        .score { background-color: #FFCC80; }
+        .weight { background-color: #81C784; }
+        .context { background-color: #64B5F6; }
+        .arrow {
+            width: 30px;
+            height: 2px;
+            background-color: #333;
+            position: relative;
+            margin: 10px;
+        }
+        .arrow::after {
+            content: '';
+            position: absolute;
+            right: -10px;
+            top: -5px;
+            border: 5px solid transparent;
+            border-left-color: #333;
+        }
+        .caption {
+            font-size: 14px;
+            color: #555;
+            margin-top: 10px;
+            max-width: 600px;
+            text-align: center;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        /* Staggered animations for words */
+        .word:nth-child(1) { animation-delay: 0s; }
+        .word:nth-child(2) { animation-delay: 0.2s; }
+        .word:nth-child(3) { animation-delay: 0.4s; }
+        .word:nth-child(4) { animation-delay: 0.6s; }
+        .word:nth-child(5) { animation-delay: 0.8s; }
+        .word:nth-child(6) { animation-delay: 1s; }
+        /* Staggered animations for vectors, scores, weights, and context */
+        .vector:nth-child(1), .score:nth-child(1), .weight:nth-child(1) { animation-delay: 1.2s; }
+        .vector:nth-child(2), .score:nth-child(2), .weight:nth-child(2) { animation-delay: 1.4s; }
+        .vector:nth-child(3), .score:nth-child(3), .weight:nth-child(3) { animation-delay: 1.6s; }
+        .vector:nth-child(4), .score:nth-child(4), .weight:nth-child(4) { animation-delay: 1.8s; }
+        .vector:nth-child(5), .score:nth-child(5), .weight:nth-child(5) { animation-delay: 2.0s; }
+        .vector:nth-child(6), .score:nth-child(6), .weight:nth-child(6) { animation-delay: 2.2s; }
+        .context { animation-delay: 2.4s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Trainable Self-Attention Mechanism</h1>
+        <div class="sentence">
+            <div class="word">Your</div>
+            <div class="word query">journey</div>
+            <div class="word">starts</div>
+            <div class="word">with</div>
+            <div class="word">one</div>
+            <div class="word">step</div>
+        </div>
+
+        <div class="step">
+            <h2>Step 1: Generate Query, Key, and Value Vectors</h2>
+            <div class="vectors">
+                <div class="vector query">Query (journey): [0.32, 0.45]</div>
+                <div class="vector key">Keys: [[0.31, 0.44], ..., [0.29, 0.42]]</div>
+                <div class="vector value">Values: [[0.55, 0.87], ..., [0.50, 0.80]]</div>
+            </div>
+            <div class="caption">
+                Project input vectors using trainable weight matrices (W_query, W_key, W_value) to get query, key, and value vectors.
+            </div>
+        </div>
+
+        <div class="step">
+            <h2>Step 2: Compute Scaled Attention Scores</h2>
+            <div class="scores">
+                <div class="score">0.75</div>
+                <div class="score">1.20</div>
+                <div class="score">1.15</div>
+                <div class="score">0.70</div>
+                <div class="score">0.65</div>
+                <div class="score">0.80</div>
+            </div>
+            <div class="caption">
+                Compute dot products between query and keys, scaled by sqrt(d_k) to prevent large values (query_2 @ keys.T / sqrt(d_k)).
+            </div>
+        </div>
+
+        <div class="step">
+            <h2>Step 3: Normalize to Attention Weights</h2>
+            <div class="weights">
+                <div class="weight">0.15</div>
+                <div class="weight">0.25</div>
+                <div class="weight">0.23</div>
+                <div class="weight">0.13</div>
+                <div class="weight">0.12</div>
+                <div class="weight">0.17</div>
+            </div>
+            <div class="arrow"></div>
+            <div class="caption">
+                Apply softmax to scaled scores to get attention weights that sum to 1.
+            </div>
+        </div>
+
+        <div class="step">
+            <h2>Step 4: Compute Context Vector (z²)</h2>
+            <div class="context-vector">
+                <div class="context">[0.45, 0.67]</div>
+            </div>
+            <div class="caption">
+                Multiply attention weights with value vectors and sum to get the context vector for "journey" (attn_weights_2 @ values).
+            </div>
+        </div>
+    </div>
+</body>
+</html>
